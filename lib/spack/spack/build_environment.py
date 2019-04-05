@@ -130,6 +130,41 @@ class MakeExecutable(Executable):
         return super(MakeExecutable, self).__call__(*args, **kwargs)
 
 
+def setup_sandbox(pkg):
+    # Setup sandbox to isolate the build
+    sb_spec = spack.cmd.parse_specs('sandbox', concretize=True)[0]
+    sb_pkg = spack.repo.get(sb_spec)
+    if not sb_pkg.installed:
+        msg = "Spack cannot find sandbox.\n"
+        msg += "Either install sandbox or try again"
+        msg += " without sandboxing the build"
+        raise spack.error.SpackError(msg)
+
+    found_sb = False
+    for dir in ('lib', 'lib64'):
+        sb_lib = os.path.join(sb_pkg.prefix, dir, 'libsandbox.so')
+        if os.path.exists(sb_lib):
+            found_sb = True
+            break
+
+    if not found_sb:
+        msg = "Spack cannot find sandbox library"
+        msg += " in %s\n" % sb_pkg.prefix
+        msg += "Either install sandbox again or try again"
+        msg += " without sandboxing the build."
+        raise spack.error.SpackError(msg)
+
+    sandbox_environment = EnvironmentModifications()
+
+    # Allow read from anywhere, write only to prefix and stage dirs
+    sandbox_environment.prepend_path('LD_PRELOAD', sb_lib)
+    sandbox_environment.prepend_path('SANDBOX_READ', '/')
+    sandbox_environment.prepend_path('SANDBOX_WRITE', pkg.spec.prefix)
+    sandbox_environment.prepend_path('SANDBOX_WRITE', pkg.stage.path)
+    sandbox_environment.set('SANDBOX_ON', '1')
+
+    sandbox_environment.apply_modifications()
+
 def clean_environment():
     # Stuff in here sanitizes the build environment to eliminate
     # anything the user has set that may interfere. We apply it immediately
@@ -667,6 +702,10 @@ def setup_package(pkg, dirty):
     """Execute all environment setup routines."""
     spack_env = EnvironmentModifications()
     run_env = EnvironmentModifications()
+
+    # sandbox the build if required
+    if spack.config.get('config:sandbox'):
+        setup_sandbox(pkg)
 
     if not dirty:
         clean_environment()

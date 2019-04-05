@@ -15,7 +15,7 @@ class Sandbox(AutotoolsPackage):
     depends_on('m4')
     depends_on('libtool')
     depends_on('autoconf')
-    depends_on('automake')
+    depends_on('automake@1.14:')
 
     version('2.17', sha256='44c8be0381d7dc58630c71361f0a43abba289fd95411f592ee5a9ec665f68f45')
     version('2.16', sha256='973e5fff39d5f74781543900d74985fe44a2db89f1d0cfb3518147e377269c2c')

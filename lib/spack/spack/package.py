@@ -1483,35 +1483,6 @@ class PackageBase(with_metaclass(PackageMeta, PackageViewMixin, object)):
             This function's return value is returned to the parent process.
             """
 
-            # sandbox the build if required
-            if spack.config.get('config:sandbox'):
-                sb_spec = spack.cmd.parse_specs('sandbox', concretize=True)[0]
-                sb_pkg = spack.repo.get(sb_spec)
-                if not sb_pkg.installed:
-                    msg = "Spack cannot find sandbox.\n"
-                    msg += "Either install sandbox or try again"
-                    msg += " without sandboxing the build"
-                    raise spack.error.SpackError(msg)
-
-                found_sb = False
-                for dir in ('lib', 'lib64'):
-                    sb_lib = os.path.join(sb_pkg.prefix, dir, 'libsandbox.so')
-                    if os.path.exists(sb_lib):
-                        found_sb = True
-                        break
-
-                if not found_sb:
-                    msg = "Spack cannot find sandbox library"
-                    msg += " in %s\n" % sb_pkg.prefix
-                    msg += "Either install sandbox again or try again"
-                    msg += " without sandboxing the build."
-                    raise spack.error.SpackError(msg)
-
-                preload = os.environ.get('LD_PRELOAD', '')
-                sep = '' if not preload else ':' if ':' in preload else ' '
-                preload = sb_lib + sep + preload
-                os.environ['LD_PRELOAD'] = preload
-
             start_time = time.time()
             if not fake:
                 if not skip_patch:
