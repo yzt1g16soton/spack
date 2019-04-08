@@ -12,6 +12,7 @@ import spack.cmd
 import llnl.util.lang
 import llnl.util.filesystem as fs
 from spack.util.executable import Executable, ProcessError
+from spack.util.find_package import find_executable
 import llnl.util.tty as tty
 
 
@@ -27,25 +28,25 @@ class InstallRootStringException(spack.error.SpackError):
             (file_path, root_path))
 
 
-def get_patchelf():
-    """
-    Builds and installs spack patchelf package on linux platforms
-    using the first concretized spec.
-    Returns the full patchelf binary path.
-    """
-    # as we may need patchelf, find out where it is
-    if platform.system() == 'Darwin':
-        return None
-    patchelf = spack.util.executable.which('patchelf')
-    if patchelf is None:
-        patchelf_spec = spack.cmd.parse_specs("patchelf", concretize=True)[0]
-        patchelf = spack.repo.get(patchelf_spec)
-        if not patchelf.installed:
-            patchelf.do_install()
-        patchelf_executable = os.path.join(patchelf.prefix.bin, "patchelf")
-        return patchelf_executable
-    else:
-        return patchelf.path
+# def get_patchelf():
+#     """
+#     Builds and installs spack patchelf package on linux platforms
+#     using the first concretized spec.
+#     Returns the full patchelf binary path.
+#     """
+#     # as we may need patchelf, find out where it is
+#     if platform.system() == 'Darwin':
+#         return None
+#     patchelf = spack.util.executable.which('patchelf')
+#     if patchelf is None:
+#         patchelf_spec = spack.cmd.parse_specs("patchelf", concretize=True)[0]
+#         patchelf = spack.repo.get(patchelf_spec)
+#         if not patchelf.installed:
+#             patchelf.do_install()
+#         patchelf_executable = os.path.join(patchelf.prefix.bin, "patchelf")
+#         return patchelf_executable
+#     else:
+#         return patchelf.path
 
 
 def get_existing_elf_rpaths(path_name):
@@ -54,7 +55,7 @@ def get_existing_elf_rpaths(path_name):
     as a list of strings.
     """
     if platform.system() == 'Linux':
-        patchelf = Executable(get_patchelf())
+        patchelf = Executable(find_executable('patchelf'))
         try:
             output = patchelf('--print-rpath', '%s' %
                               path_name, output=str, error=str)
@@ -258,7 +259,7 @@ def modify_elf_object(path_name, new_rpaths):
     """
     if platform.system() == 'Linux':
         new_joined = ':'.join(new_rpaths)
-        patchelf = Executable(get_patchelf())
+        patchelf = Executable(find_executable('patchelf'))
         try:
             patchelf('--force-rpath', '--set-rpath', '%s' % new_joined,
                      '%s' % path_name, output=str, error=str)
@@ -515,7 +516,7 @@ def file_is_relocatable(file):
         raise ValueError('{0} is not an absolute path'.format(file))
 
     strings = Executable('strings')
-    patchelf = Executable(get_patchelf())
+    patchelf = Executable(find_executable('patchelf'))
 
     # Remove the RPATHS from the strings in the executable
     set_of_strings = set(strings(file, output=str).split())

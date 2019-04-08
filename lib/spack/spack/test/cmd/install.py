@@ -569,3 +569,8 @@ def test_build_warning_output(tmpdir, mock_fetch, install_mockery, capfd):
 
         assert 'WARNING: ALL CAPITAL WARNING!' in msg
         assert 'foo.c:89: warning: some weird warning!' in msg
+
+
+def test_sandbox_violator(tmpdir, mock_fetch, install_mockery, mock_packages,
+                          mock_archive, config):
+    install('-s', 'sandbox-violator')
