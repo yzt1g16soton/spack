@@ -571,6 +571,17 @@ def test_build_warning_output(tmpdir, mock_fetch, install_mockery, capfd):
         assert 'foo.c:89: warning: some weird warning!' in msg
 
 
+def test_sandbox_nonviolator(tmpdir, mock_fetch, install_mockery, mock_packages,
+                          mock_archive, config):
+    install('-s', 'libelf')
+
+
 def test_sandbox_violator(tmpdir, mock_fetch, install_mockery, mock_packages,
                           mock_archive, config):
     install('-s', 'sandbox-violator')
+    s = Spec('sandbox-violator')
+    s.concretize()
+    print os.listdir(s.prefix)
+    print os.listdir(os.path.dirname(s.prefix))
+
+    assert False

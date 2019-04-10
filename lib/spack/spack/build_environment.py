@@ -61,6 +61,7 @@ from spack.util.environment import system_dirs
 from spack.util.executable import Executable
 from spack.util.module_cmd import load_module, get_path_from_module
 from spack.util.log_parse import parse_log_events, make_log_context
+from spack.util.find_package import find_library
 
 
 #
@@ -131,37 +132,17 @@ class MakeExecutable(Executable):
 
 
 def setup_sandbox(pkg):
-    # Setup sandbox to isolate the build
-    sb_spec = spack.cmd.parse_specs('sandbox', concretize=True)[0]
-    sb_pkg = spack.repo.get(sb_spec)
-    if not sb_pkg.installed:
-        msg = "Spack cannot find sandbox.\n"
-        msg += "Either install sandbox or try again"
-        msg += " without sandboxing the build"
-        raise spack.error.SpackError(msg)
-
-    found_sb = False
-    for dir in ('lib', 'lib64'):
-        sb_lib = os.path.join(sb_pkg.prefix, dir, 'libsandbox.so')
-        if os.path.exists(sb_lib):
-            found_sb = True
-            break
-
-    if not found_sb:
-        msg = "Spack cannot find sandbox library"
-        msg += " in %s\n" % sb_pkg.prefix
-        msg += "Either install sandbox again or try again"
-        msg += " without sandboxing the build."
-        raise spack.error.SpackError(msg)
-
     sandbox_environment = EnvironmentModifications()
 
+    sandbox_library = find_library('libsandbox', 'sandbox')
+
     # Allow read from anywhere, write only to prefix and stage dirs
-    sandbox_environment.prepend_path('LD_PRELOAD', sb_lib)
+    sandbox_environment.prepend_path('LD_PRELOAD', sandbox_library)
     sandbox_environment.prepend_path('SANDBOX_READ', '/')
     sandbox_environment.prepend_path('SANDBOX_WRITE', pkg.spec.prefix)
     sandbox_environment.prepend_path('SANDBOX_WRITE', pkg.stage.path)
     sandbox_environment.set('SANDBOX_ON', '1')
+    sandbox_environment.set('SANDBOX_INTRACTV', '1')
 
     sandbox_environment.apply_modifications()
 

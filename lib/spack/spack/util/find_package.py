@@ -3,8 +3,12 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
+import sys
+
+from llnl.util.filesystem import find_libraries, find_system_libraries
 
 import spack.repo
+import spack.error
 from spack.util.executable import which
 from spack.cmd import parse_specs
 
@@ -31,16 +35,23 @@ def find_library(lib_name, pkg_name=None):
 
     Check the user LD_LIBRARY_PATH for the library, otherwise ensure it is
     installed through Spack
+
+    For libfoo.so, request ``libfoo``.
     """
     if not pkg_name:
         pkg_name = lib_name
-    lib = TODO_find_lib
+    lib = find_library_in_environment(lib_name)
     if lib is None:
         pkg = find_pkg_ensure_installed(pkg_name)
         lib_paths = [os.path.join(pkg.prefix, libdir, lib_name)
                      for lib_name in ('lib', 'lib64')]
         lib_paths = list(filter(lambda p: os.path.exists(p), lib_paths))
-        return lib_paths[0] if lib_paths else None
+        if not lib_paths:
+            msg = 'Spack cannot find library %s' % lib_name
+            msg += ' in package %s.\n' % pkg_name
+            msg += 'Use an option which does not require this library.'
+            raise spack.error.SpackError(msg)
+        return lib_paths[0]
     else:
         return lib
 
@@ -54,13 +65,15 @@ def find_pkg_ensure_installed(pkg_name):
 
 
 def find_library_in_environment(lib_name):
-    lib_dir_env_var = 'DYLD_LIBRARY_PATH' if sys.platform() == 'Darwin' \
+    lib_dir_env_var = 'DYLD_LIBRARY_PATH' if sys.platform == 'darwin' \
                       else 'LD_LIBRARY_PATH'
     if lib_dir_env_var not in os.environ:
+        tty.msg('SANITIZED TO DEATH')
         return None
     libdirs = os.environ[lib_dir_env_var].split(':')
     for libdir in libdirs:
-        candidate = os.path.join(libdir, lib_name)
-        if os.path.exists(candidate):
-            return candidate
-    return None
+        lib_list = find_libraries(lib_name, libdir)  # shared, non-recursive
+        if lib_name in map(lambda x: 'lib' + x, lib_list.names):
+            return lib_list.libraries[0]
+    tty.msg('TRY THE SYSTEM')
+    return find_system_libraries(lib_name) or None
