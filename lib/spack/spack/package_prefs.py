@@ -194,12 +194,14 @@ def is_spec_buildable(spec):
     so_far = all_buildable  # the default "so far"
 
     # check whether any providers for this package override the default
-    if any(spec.package.provides(name) and entry.get('buildable', so_far) != so_far
+    if any((spec.package.provides(name) and
+            entry.get('buildable', so_far) != so_far)
            for name, entry in allpkgs.items()):
         so_far = not so_far
 
     spec_buildable = allpkgs.get(spec.name, {}).get('buildable', so_far)
     return spec_buildable
+
 
 def get_package_dir_permissions(spec):
     """Return the permissions configured for the spec.
