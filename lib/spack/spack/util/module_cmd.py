@@ -99,14 +99,17 @@ def load_module(mod):
     # We do this without checking that they are already installed
     # for ease of programming because unloading a module that is not
     # loaded does nothing.
-    text = module('show', mod).split()
-    for i, word in enumerate(text):
-        if word == 'conflict':
-            module('unload', text[i + 1])
+    if 'PrgEnv' not in mod:
+        module('swap', mod)
+    else:
+        text = module('show', mod).split()
+        for i, word in enumerate(text):
+            if word == 'conflict':
+                module('unload', text[i + 1])
 
-    # Load the module now that there are no conflicts
-    # Some module systems use stdout and some use stderr
-    module('load', mod)
+        # Load the module now that there are no conflicts
+        # Some module systems use stdout and some use stderr
+        module('load', mod)
 
 
 def get_path_args_from_module_line(line):
