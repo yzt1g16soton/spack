@@ -158,9 +158,9 @@ def clean_environment():
     using_cnl = re.match(r'cnl\d+', str(hostarch.os))
     if on_cray and not using_cnl:
         env.unset('CRAY_LD_LIBRARY_PATH')
-        for varname in os.environ.keys():
-            if 'PKGCONF' in varname:
-                env.unset(varname)
+#        for varname in os.environ.keys():
+#            if 'PKGCONF' in varname:
+#                env.unset(varname)
 
     # Unset the following variables because they can affect installation of
     # Autotools and CMake packages.
