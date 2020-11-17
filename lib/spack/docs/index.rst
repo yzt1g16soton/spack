@@ -63,6 +63,7 @@ or refer to the full manual below.
    :caption: Reference
 
    configuration
+   concretizer
    config_yaml
    build_settings
    environments
