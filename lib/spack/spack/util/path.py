@@ -29,7 +29,7 @@ def get_user():
     try:
         # user pwd for unix systems
         import pwd
-        return pwd.getpwuid(os.getuid())
+        return pwd.getpwuid(os.getuid()).pw_name
     except ImportError:
         # fallback on getpass
         return getpass.getuser()
