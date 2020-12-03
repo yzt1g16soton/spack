@@ -84,7 +84,7 @@ class Aomp(Package):
     url = tools_url + "/aomp/archive/rocm-3.9.0.tar.gz"
 
     maintainers = ['srekolam', 'arjun-raj-kuppala', 'estewart08']
-    version('3.9.0', sha256=aomp38['aomp'])
+    version('3.9.0', sha256=aomp39['aomp'])
     version('3.8.0', sha256=aomp38['aomp'])
     version('3.7.0', sha256=aomp37['aomp'])
     version('3.5.0', sha256=aomp35['aomp'])
@@ -93,7 +93,7 @@ class Aomp(Package):
     depends_on('mesa18~llvm@18.3:', type=('build', 'link'))
     depends_on('py-setuptools@44.1.0', type='build')
     depends_on('python@2.7.18', type='build', when='@3.5.0:3.8.0')
-    depends_on('python@3.6.9', type='build', when='@3.9.0:')
+    depends_on('python@3.6.9:', type='build', when='@3.9.0:')
     depends_on('py-pip', when='@3.8.0:', type='build')
     depends_on('py-wheel@0.29.0', when='@3.8.0:', type=('build', 'run'))
     depends_on('perl-data-dumper', type='build')
