@@ -122,6 +122,11 @@ class Cmake(Package):
                   'See: https://gitlab.kitware.com/cmake/cmake/-/issues/21135')
 
     conflicts('%nvhpc')
+    # TODO: make a gcc+cxx14only variant that cmake can declare as a dependency, and add a gcc
+    # conflict() to restrict versions so it can ensure it always has support for C++14!
+    conflicts('%gcc@:4.8.99',
+              when='@3.6.1:',
+              msg='Recent CMake does not compile on gcc versions below 4.9, as it uses C++14 features.')
 
     # Really this should conflict since it's enabling or disabling openssl for
     # CMake's internal copy of curl.  Ideally we'd want a way to have the
@@ -238,7 +243,7 @@ class Cmake(Package):
         args.append('-DCMake_TEST_INSTALL=OFF')
 
         # When building our own private copy of curl then we need to properly
-        # enable / disable oepnssl
+        # enable / disable openssl
         if '+ownlibs' in spec:
             args.append('-DCMAKE_USE_OPENSSL=%s' % str('+openssl' in spec))
 

@@ -26,6 +26,10 @@ class Krb5(AutotoolsPackage):
     depends_on('bison', type='build')
     depends_on('openssl')
 
+    conflicts('%gcc@:4.8.99',
+              when='@1.18:',
+              msg='The CLI option -Wno-maybe-uninitialized is not recognized by older gcc versions.')
+
     configure_directory = 'src'
     build_directory = 'src'
 
