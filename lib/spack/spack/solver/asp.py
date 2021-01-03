@@ -470,28 +470,12 @@ class SpackSolverSetup(object):
 
     def conflict_rules(self, pkg):
         for trigger, constraints in pkg.conflicts.items():
+            trigger_id = self.condition(spack.spec.Spec(trigger), name=pkg.name)
+            self.gen.fact(fn.conflict_trigger(trigger_id))
+
             for constraint, _ in constraints:
-                constraint_body = spack.spec.Spec(pkg.name)
-                constraint_body.constrain(constraint)
-                constraint_body.constrain(trigger)
-
-                clauses = []
-                for s in constraint_body.traverse():
-                    clauses += self.spec_clauses(s, body=True)
-
-                # TODO: find a better way to generate clauses for integrity
-                # TODO: constraints, instead of generating them for the body
-                # TODO: of a rule and filter unwanted functions.
-                to_be_filtered = ['node_compiler_hard']
-                clauses = [x for x in clauses if x.name not in to_be_filtered]
-
-                # Emit facts based on clauses
-                condition_id = next(self._condition_id_counter)
-                self.gen.fact(fn.conflict(condition_id, pkg.name))
-                for clause in clauses:
-                    self.gen.fact(fn.conflict_condition(
-                        condition_id, clause.name, *clause.args
-                    ))
+                constraint_id = self.condition(constraint, name=pkg.name)
+                self.gen.fact(fn.conflict(pkg.name, trigger_id, constraint_id))
                 self.gen.newline()
 
     def available_compilers(self):

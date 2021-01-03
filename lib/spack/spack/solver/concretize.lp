@@ -113,16 +113,13 @@ path(Parent, Descendant) :- path(Parent, A), depends_on(A, Descendant).
 %-----------------------------------------------------------------------------
 % Conflicts
 %-----------------------------------------------------------------------------
-:- not external(Package)        : conflict_condition(ID, "node", Package);
-   attr(Name, Arg1)             : conflict_condition(ID, Name, Arg1);
-   attr(Name, Arg1, Arg2)       : conflict_condition(ID, Name, Arg1, Arg2);
-   attr(Name, Arg1, Arg2, Arg3) : conflict_condition(ID, Name, Arg1, Arg2, Arg3);
-   conflict(ID, Package).
+:- node(Package),
+   not external(Package),
+   conflict(Package, TriggerID, ConstraintID),
+   condition_holds(TriggerID),
+   condition_holds(ConstraintID).
 
-#defined conflict/2.
-#defined conflict_condition/3.
-#defined conflict_condition/4.
-#defined conflict_condition/5.
+#defined conflict/3.
 
 %-----------------------------------------------------------------------------
 % Virtual dependencies
