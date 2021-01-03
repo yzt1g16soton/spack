@@ -629,46 +629,42 @@ class SpackSolverSetup(object):
             )
         )
 
-    def _condition_facts(
-            self, pkg_name, cond_spec, dep_spec,
-            cond_fn, require_fn, impose_fn
-    ):
+    def condition(self, required_spec, imposed_spec=None, name=None):
         """Generate facts for a dependnecy or virtual provider condition.
 
         Arguments:
-            pkg_name (str): name of the package that triggers the
-                condition (e.g., the dependent or the provider)
-            cond_spec (Spec): the dependency spec representing the
-                condition that needs to be True (can be anonymous)
-            dep_spec (Spec): the sepc of the dependnecy or provider
-                to be depended on/provided if the condition holds.
-            cond_fn (AspFunction): function to use to declare the condition;
-                will be called with the cond id, pkg_name, an dep_spec.name
-            require_fn (AspFunction): function to use to declare the conditions
-                required of the dependent/provider to trigger
-            impose_fn (AspFunction): function to use for constraints imposed
-                on the dependency/virtual
+            required_spec (Spec): the spec that triggers this condition
+            imposed_spec (optional, Spec): the sepc with constraints that
+                are imposed when this condition is triggered
+            name (optional, str): name for `required_spec` (required if
+                required_spec is anonymous, ignored if not)
 
         Returns:
             (int): id of the condition created by this function
         """
+        named_cond = required_spec.copy()
+        named_cond.name = named_cond.name or name
+        assert named_cond.name, "must provide name for anonymous condtions!"
+
         condition_id = next(self._condition_id_counter)
-        named_cond = cond_spec.copy()
-        named_cond.name = named_cond.name or pkg_name
+        self.gen.fact(fn.condition(condition_id))
 
-        self.gen.fact(cond_fn(condition_id, pkg_name, dep_spec.name))
+        # requirements trigger the condition
+        requirements = self.spec_clauses(named_cond, body=True)
+        for pred in requirements:
+            self.gen.fact(
+                fn.condition_requirement(condition_id, pred.name, *pred.args)
+            )
 
-        # conditions that trigger the condition
-        conditions = self.spec_clauses(named_cond, body=True)
-        for pred in conditions:
-            self.gen.fact(require_fn(condition_id, pred.name, *pred.args))
-
-        imposed_constraints = self.spec_clauses(dep_spec)
-        for pred in imposed_constraints:
-            # imposed "node"-like conditions are no-ops
-            if pred.name in ("node", "virtual_node"):
-                continue
-            self.gen.fact(impose_fn(condition_id, pred.name, *pred.args))
+        if imposed_spec:
+            imposed_constraints = self.spec_clauses(imposed_spec, body=False)
+            for pred in imposed_constraints:
+                # imposed "node"-like conditions are no-ops
+                if pred.name in ("node", "virtual_node"):
+                    continue
+                self.gen.fact(
+                    fn.imposed_constraint(condition_id, pred.name, *pred.args)
+                )
 
         return condition_id
 
@@ -678,25 +674,20 @@ class SpackSolverSetup(object):
 
         for provided, whens in pkg.provided.items():
             for when in whens:
-                self._condition_facts(
-                    pkg.name, when, provided,
-                    fn.provider_condition,
-                    fn.required_provider_condition,
-                    fn.imposed_dependency_condition
-                )
-
+                condition_id = self.condition(when, provided, pkg.name)
+                self.gen.fact(fn.provider_condition(
+                    condition_id, when.name, provided.name
+                ))
             self.gen.newline()
 
     def package_dependencies_rules(self, pkg, tests):
         """Translate 'depends_on' directives into ASP logic."""
         for _, conditions in sorted(pkg.dependencies.items()):
             for cond, dep in sorted(conditions.items()):
-                condition_id = self._condition_facts(
-                    pkg.name, cond, dep.spec,
-                    fn.dependency_condition,
-                    fn.required_dependency_condition,
-                    fn.imposed_dependency_condition
-                )
+                condition_id = self.condition(cond, dep.spec, pkg.name)
+                self.gen.fact(fn.dependency_condition(
+                    condition_id, pkg.name, dep.spec.name
+                ))
 
                 for t in sorted(dep.type):
                     # Skip test dependencies if they're not requested at all
