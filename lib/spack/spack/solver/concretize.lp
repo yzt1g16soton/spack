@@ -289,29 +289,25 @@ real_node(Package) :- node(Package), not external(Package).
 
 % if an external version is selected, the package is external and
 % we are using the corresponding spec
+% TODO: this only checks that the *version* is the same, but not that
+% TODO: other attributes are. Consider modeling externals with imposed
+% TODO: constraints (to ensure they all match), not by writing out the
+% TODO: match criteria like this (we'll always forget something)
 external(Package) :-
     version(Package, Version), version_weight(Package, Weight),
     external_version_declared(Package, Version, Weight, ID).
 
 % determine if an external spec has been selected
-external_spec_selected(ID, Package, LocalIndex) :-
-    version(Package, Version), version_weight(Package, Weight),
-    external_spec_index(ID, Package, LocalIndex),
-    external_version_declared(Package, Version, Weight, LocalIndex),
-    external_spec_conditions_hold(ID, Package).
+external_spec_selected(Package, LocalIndex) :-
+    external_conditions_hold(Package, LocalIndex),
+    node(Package).
 
-% determine if all the conditions on an external spec hold. If they do
-% the spec can be selected.
-external_spec_conditions_hold(ID, Package) :-
-  attr(Name, Arg1)             : external_spec_condition(ID, Name, Arg1);
-  attr(Name, Arg1, Arg2)       : external_spec_condition(ID, Name, Arg1, Arg2);
-  attr(Name, Arg1, Arg2, Arg3) : external_spec_condition(ID, Name, Arg1, Arg2, Arg3);
-  external_spec(ID, Package);
-  node(Package).
+external_conditions_hold(Package, LocalIndex) :-
+    possible_external(ID, Package, LocalIndex), condition_holds(ID).
 
 % it cannot happen that a spec is external, but none of the external specs
 % conditions hold.
-:- external(Package), not external_spec_conditions_hold(_, Package).
+:- external(Package), not external_conditions_hold(Package, _).
 
 #defined external_spec_index/3.
 #defined external_spec_condition/3.

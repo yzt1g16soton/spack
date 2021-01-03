@@ -752,24 +752,13 @@ class SpackSolverSetup(object):
                     pkg_name, str(version), weight, id
                 ))
 
+            # Declare external conditions with a local index into packages.yaml
             for local_idx, spec in enumerate(external_specs):
-                condition_id = next(self._condition_id_counter)
-
-                # Declare the global ID associated with this external spec
-                self.gen.fact(fn.external_spec(condition_id, pkg_name))
-
-                # Local index into packages.yaml
+                condition_id = self.condition(spec)
                 self.gen.fact(
-                    fn.external_spec_index(condition_id, pkg_name, local_idx))
-
-                # Add conditions to be satisfied for this external
+                    fn.possible_external(condition_id, pkg_name, local_idx)
+                )
                 self.possible_versions[spec.name].add(spec.version)
-                clauses = self.spec_clauses(spec, body=True)
-                for clause in clauses:
-                    self.gen.fact(
-                        fn.external_spec_condition(
-                            condition_id, clause.name, *clause.args)
-                    )
                 self.gen.newline()
 
     def preferred_variants(self, pkg_name):
@@ -1415,7 +1404,7 @@ class SpecBuilder(object):
     def no_flags(self, pkg, flag_type):
         self._specs[pkg].compiler_flags[flag_type] = []
 
-    def external_spec_selected(self, condition_id, pkg, idx):
+    def external_spec_selected(self, pkg, idx):
         """This means that the external spec and index idx
         has been selected for this package.
         """
