@@ -112,7 +112,9 @@ class AspFunction(AspObject):
 
     def symbol(self, positive=True):
         def argify(arg):
-            if isinstance(arg, bool):
+            if isinstance(arg, AspFunction):
+                return arg.symbol()
+            elif isinstance(arg, bool):
                 return str(arg)
             elif isinstance(arg, int):
                 return arg
@@ -135,6 +137,9 @@ class AspFunction(AspObject):
 
 class AspFunctionBuilder(object):
     def __getattr__(self, name):
+        return AspFunction(name)
+
+    def __getitem__(self, name):
         return AspFunction(name)
 
 
@@ -637,7 +642,7 @@ class SpackSolverSetup(object):
         requirements = self.spec_clauses(named_cond, body=True)
         for pred in requirements:
             self.gen.fact(
-                fn.condition_requirement(condition_id, pred.name, *pred.args)
+                fn.condition_requirement(condition_id, fn[pred.name](), *pred.args)
             )
 
         if imposed_spec:
@@ -647,7 +652,7 @@ class SpackSolverSetup(object):
                 if pred.name in ("node", "virtual_node"):
                     continue
                 self.gen.fact(
-                    fn.imposed_constraint(condition_id, pred.name, *pred.args)
+                    fn.imposed_constraint(condition_id, fn[pred.name](), *pred.args)
                 )
 
         return condition_id
