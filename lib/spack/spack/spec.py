@@ -1240,9 +1240,11 @@ class Spec(object):
         dspec = DependencySpec(self, spec, deptypes)
 
         if spec.name in self._dependencies:
-            if dspec != self._dependencies[spec.name]:
+            orig = self._dependencies[spec.name]
+            if dspec.spec != orig.spec or dspec.deptypes != orig.deptypes:
                 raise DuplicateDependencyError(
-                    "Cannot depend on '%s' twice" % spec)
+                    "Cannot depend on conflicting abstract specs %s and %s" %
+                    (spec, orig.spec))
 
         # create an edge and add to parent and child
         self._dependencies[spec.name] = dspec
