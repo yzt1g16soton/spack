@@ -1240,6 +1240,7 @@ class Spec(object):
         dspec = DependencySpec(self, spec, deptypes)
 
         if spec.name in self._dependencies:
+            # allow redundant identical deps
             orig = self._dependencies[spec.name]
             if dspec.spec != orig.spec or dspec.deptypes != orig.deptypes:
                 raise DuplicateDependencyError(
