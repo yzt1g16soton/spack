@@ -1240,7 +1240,7 @@ class Spec(object):
         dspec = DependencySpec(self, spec, deptypes)
 
         if spec.name in self._dependencies:
-            # allow redundant identical deps
+            # allow redundant identical dependency specifications
             # depspec equality checks by name, so we need to check components
             # separately to test whether the specs are identical
             orig = self._dependencies[spec.name]
