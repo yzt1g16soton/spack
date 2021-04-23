@@ -1413,6 +1413,7 @@ class Database(object):
             known=any,
             installed=True,
             explicit=any,
+            externals=any,
             start_date=None,
             end_date=None,
             hashes=None
@@ -1464,6 +1465,9 @@ class Database(object):
             if (query_spec is any or
                 rec.spec.satisfies(query_spec, strict=True)):
                 results.append(rec.spec)
+
+        if externals is not any:
+            results = list(filter(lambda x: x.external == externals, results))
 
         return results
 

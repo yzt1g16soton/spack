@@ -114,6 +114,16 @@ def setup_parser(subparser):
         help='show software in the internal bootstrap store'
     )
 
+    externals_parser = subparser.add_mutually_exclusive_group()
+    externals_parser.add_argument(
+        '-e', '--only-externals',
+        action='store_true', dest='externals', default=any,
+        help='show only packages from external sources to Spack')
+    externals_parser.add_argument(
+        '-E', '--no-externals',
+        action='store_false', dest='externals', default=any,
+        help='do not show external packages')
+
     arguments.add_common_arguments(subparser, ['constraint'])
 
 
@@ -137,7 +147,8 @@ def query_arguments(args):
     if args.implicit:
         explicit = False
 
-    q_args = {'installed': installed, 'known': known, "explicit": explicit}
+    q_args = {'installed': installed, 'known': known, "explicit": explicit,
+              'externals': args.externals}
 
     # Time window of installation
     for attribute in ('start_date', 'end_date'):
