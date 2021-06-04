@@ -26,6 +26,18 @@ lock_type = {fcntl.LOCK_SH: 'read', fcntl.LOCK_EX: 'write'}
 true_fn = lambda: True
 
 
+class OpenFile(object):
+    """Record for keeping track of file descriptors (with reference counting)."""
+    def __init__(self, fh):
+        self.fh = fh
+        self.refs = 0
+
+
+#: Open file descriptors for locks in this process. Used to prevent one process
+#: from opening the sam file many times for different byte range locks
+file_descriptors = {}
+
+
 def _attempts_str(wait_time, nattempts):
     # Don't print anything if we succeeded on the first try
     if nattempts <= 1:
@@ -46,7 +58,8 @@ class Lock(object):
     Note that this is for managing contention over resources *between*
     processes and not for managing contention between threads in a process: the
     functions of this object are not thread-safe. A process also must not
-    maintain multiple locks on the same file.
+    maintain multiple locks on the same file (or, more specifically, on
+    overlapping byte ranges in the same file).
     """
 
     def __init__(self, path, start=0, length=0, default_timeout=None,
@@ -134,6 +147,26 @@ class Lock(object):
         activity = '#reads={0}, #writes={1}'.format(self._reads, self._writes)
         return '({0}, {1}, {2})'.format(location, timeout, activity)
 
+    def _get_fh(self, path, os_mode, fh_mode):
+        open_file = file_descriptors.get(path)
+        if not open_file:
+            fd = os.open(path, os_mode)
+            fh = os.fdopen(fd, fh_mode)
+            open_file = OpenFile(fh)
+            file_descriptors[path] = open_file
+
+        open_file.refs += 1
+        return open_file.fh
+
+    def _release_fh(self, path):
+        open_file = file_descriptors.get(path)
+        assert open_file, "Attempted to close non-existing lock path: %s" % path
+
+        open_file.refs -= 1
+        if not open_file.refs:
+            del file_descriptors[path]
+            open_file.fh.close()
+
     def _lock(self, op, timeout=None):
         """This takes a lock using POSIX locks (``fcntl.lockf``).
 
@@ -154,20 +187,19 @@ class Lock(object):
             parent = self._ensure_parent_directory()
 
             # Open writable files as 'r+' so we can upgrade to write later
-            os_mode, fd_mode = (os.O_RDWR | os.O_CREAT), 'r+'
+            os_mode, fh_mode = (os.O_RDWR | os.O_CREAT), 'r+'
             if os.path.exists(self.path):
                 if not os.access(self.path, os.W_OK):
                     if op == fcntl.LOCK_SH:
                         # can still lock read-only files if we open 'r'
-                        os_mode, fd_mode = os.O_RDONLY, 'r'
+                        os_mode, fh_mode = os.O_RDONLY, 'r'
                     else:
                         raise LockROFileError(self.path)
 
             elif not os.access(parent, os.W_OK):
                 raise CantCreateLockError(self.path)
 
-            fd = os.open(self.path, os_mode)
-            self._file = os.fdopen(fd, fd_mode)
+            self._file = self._get_fh(self.path, os_mode, fh_mode)
 
         elif op == fcntl.LOCK_EX and self._file.mode == 'r':
             # Attempt to upgrade to write lock w/a read-only file.
@@ -282,7 +314,8 @@ class Lock(object):
         """
         fcntl.lockf(self._file, fcntl.LOCK_UN,
                     self._length, self._start, os.SEEK_SET)
-        self._file.close()
+
+        self._release_fh(self.path)
         self._file = None
         self._reads = 0
         self._writes = 0
