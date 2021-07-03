@@ -759,10 +759,17 @@ def _main(argv=None):
         spack.config.command_line_scopes = args.config_scopes
 
     # activate an environment if one was specified on the command line
+    env_format_error = None
     if not args.no_env:
-        env = ev.find_environment(args)
-        if env:
-            ev.activate(env, args.use_env_repo, add_view=False)
+        try:
+            env = ev.find_environment(args)
+            if env:
+                ev.activate(env, args.use_env_repo, add_view=False)
+        except spack.config.ConfigFormatError as e:
+            # print the context but delay this exception so that commands like
+            # `spack config edit` can still work with a bad environment.
+            e.print_context()
+            env_format_error = e
 
     # ------------------------------------------------------------------------
     # Things that require configuration should go below here
@@ -785,6 +792,13 @@ def _main(argv=None):
 
     # Re-parse with the proper sub-parser added.
     args, unknown = parser.parse_known_args()
+
+    # Now that we know what command this is and what its args are, determine
+    # whether we can continue with a bad environment and raise if not.
+    if env_format_error:
+        subcommand = getattr(args, "config_command", None)
+        if (cmd_name, subcommand) != ("config", "edit"):
+            raise env_format_error
 
     # many operations will fail without a working directory.
     set_working_dir()
