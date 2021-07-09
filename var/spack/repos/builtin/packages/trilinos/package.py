@@ -440,6 +440,7 @@ class Trilinos(CMakePackage, CudaPackage):
     depends_on('hdf5~mpi', when='+hdf5~mpi')
     conflicts('+pnetcdf', when='~mpi')
 
+    patch('9409.diff')
     patch('umfpack_from_suitesparse.patch', when='@11.14.1:12.8.1')
     patch('xlf_seacas.patch', when='@12.10.1:12.12.1 %xl')
     patch('xlf_seacas.patch', when='@12.10.1:12.12.1 %xl_r')
