@@ -25,7 +25,8 @@ class Libmaus2(AutotoolsPackage):
 
     conflicts(
         "%gcc@:7.9",
-        msg="libmaus2 uses std::filesystem. std::filesystem requires greater than or equal to GCC 8.",
+        msg="libmaus2 uses std::filesystem. "
+        "std::filesystem requires greater than or equal to GCC 8.",
     )
 
     def setup_build_environment(self, env):

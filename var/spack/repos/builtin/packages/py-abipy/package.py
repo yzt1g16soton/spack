@@ -20,7 +20,7 @@ class PyAbipy(PythonPackage):
 
     extends(
         "python",
-        ignore="bin/(feff_.*|gaussian_analyzer|get_environment|html2text|nc3tonc4|nc4tonc3|ncinfo|pmg|pydii|tabulate|tqdm)",
+        ignore="bin/(feff_.*|gaussian_analyzer|get_environment|html2text|nc3tonc4|nc4tonc3|ncinfo|pmg|pydii|tabulate|tqdm)",  # noqa
     )
 
     depends_on("python@2.7:")

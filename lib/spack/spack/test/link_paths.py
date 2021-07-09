@@ -95,9 +95,9 @@ def test_clang_apple_ld_link_paths():
     check_link_paths(
         "clang-9.0.0-apple-ld.txt",
         [
-            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/lib"
+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/lib"  # noqa
         ],
-    )  # noqa
+    )
 
 
 def test_nag_mixed_gcc_gnu_ld_link_paths():
@@ -112,7 +112,7 @@ def test_nag_mixed_gcc_gnu_ld_link_paths():
             "/scratch/local1/spack/opt/spack/gcc-6.3.0-haswell/gcc-6.5.0-4sdjgrs/lib64",  # noqa
             "/scratch/local1/spack/opt/spack/gcc-6.3.0-haswell/gcc-6.5.0-4sdjgrs/lib",
         ],
-    )  # noqa
+    )
 
 
 def test_nag_link_paths():
@@ -127,7 +127,7 @@ def test_nag_link_paths():
             "/scratch/local1/spack/opt/spack/gcc-6.3.0-haswell/gcc-6.5.0-4sdjgrs/lib64",  # noqa
             "/scratch/local1/spack/opt/spack/gcc-6.3.0-haswell/gcc-6.5.0-4sdjgrs/lib",
         ],
-    )  # noqa
+    )
 
 
 def test_obscure_parsing_rules():

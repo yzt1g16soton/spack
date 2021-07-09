@@ -50,7 +50,7 @@ class Flake8(Package):
     )
 
     depends_on(
-        "boost+atomic+chrono+date_time~debug+filesystem~graph~icu+iostreams+locale+log+math~mpi+multithreaded+program_options~python+random+regex+serialization+shared+signals~singlethreaded+system~taggedlayout+test+thread+timer+wave"
+        "boost+atomic+chrono+date_time~debug+filesystem~graph~icu+iostreams+locale+log+math~mpi+multithreaded+program_options~python+random+regex+serialization+shared+signals~singlethreaded+system~taggedlayout+test+thread+timer+wave"  # noqa
     )
 
     conflicts("+super-awesome-feature", when="%intel@16:17+somewhat-awesome-feature")
@@ -64,7 +64,7 @@ class Flake8(Package):
     )
 
     patch(
-        "hyper-specific-patch-that-fixes-some-random-bug-that-probably-only-affects-one-user.patch",
+        "hyper-specific-patch-that-fixes-some-random-bug-that-probably-only-affects-one-user.patch",  # noqa
         when="%gcc@3.2.2:3.2.3",
     )
 
@@ -73,8 +73,9 @@ class Flake8(Package):
         # remove them entirely. This will mess up the indentation of
         # the following lines.
         if (
-            "really-long-if-statement" != "that-goes-over-the-line-length-limit-and-requires-noqa"
-        ):  # noqa
+            "really-long-if-statement"
+            != "that-goes-over-the-line-length-limit-and-requires-noqa"  # noqa
+        ):
             pass
 
         # sanity_check_prefix requires something in the install directory

@@ -33,7 +33,7 @@ def flake8_package():
     try:
         shutil.copy(filename, tmp)
         package = FileFilter(filename)
-        package.filter("state = 'unmodified'", "state = 'modified'", string=True)
+        package.filter('state = "unmodified"', 'state = "modified"', string=True)
         yield filename
     finally:
         shutil.move(tmp, filename)
@@ -49,7 +49,7 @@ def flake8_package_with_errors(scope="function"):
     try:
         shutil.copy(filename, tmp)
         package = FileFilter(filename)
-        package.filter("state = 'unmodified'", "state    =    'modified'", string=True)
+        package.filter('state = "unmodified"', 'state    =    "modified"', string=True)
         yield filename
     finally:
         shutil.move(tmp, filename)

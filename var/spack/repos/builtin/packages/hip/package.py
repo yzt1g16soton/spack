@@ -61,7 +61,7 @@ class Hip(CMakePackage):
     patch("0003-Improve-compilation-without-git-repo.3.10.0.patch", when="@3.10.0:4.0.0")
     patch("0003-Improve-compilation-without-git-repo.4.1.0.patch", when="@4.1.0")
     patch(
-        "0003-Improve-compilation-without-git-repo-and-remove-compiler-rt-linkage-for-host.4.2.0.patch",
+        "0003-Improve-compilation-without-git-repo-and-remove-compiler-rt-linkage-for-host.4.2.0.patch",  # noqa
         when="@4.2.0",
     )
     # See https://github.com/ROCm-Developer-Tools/HIP/pull/2219

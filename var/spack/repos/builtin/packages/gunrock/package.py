@@ -34,7 +34,8 @@ class Gunrock(CMakePackage, CudaPackage):
     variant(
         "mgpu_tests",
         default=False,
-        description="Builds Gunrock applications and enables the ctest framework for single GPU implementations",
+        description="Builds Gunrock applications and enables the ctest "
+        "framework for single GPU implementations",
     )
     variant(
         "cuda_verbose_ptxas",
