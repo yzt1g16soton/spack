@@ -100,9 +100,7 @@ class Genesis(AutotoolsPackage, CudaPackage):
     def test(self):
         if self.spec.satisfies("@master"):
             exe_name = self.spec["python"].command.path
-            test_name = join_path(
-                self.install_test_root, "tests", "regression_test", "test.py"
-            )
+            test_name = join_path(self.install_test_root, "tests", "regression_test", "test.py")
             bin_name = join_path(self.prefix.bin, "spdyn")
             opts = [
                 test_name,

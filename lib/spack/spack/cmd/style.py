@@ -181,9 +181,7 @@ def setup_parser(subparser):
         action="store_true",
         help="run black if available (default: skip black)",
     )
-    subparser.add_argument(
-        "files", nargs=argparse.REMAINDER, help="specific files to check"
-    )
+    subparser.add_argument("files", nargs=argparse.REMAINDER, help="specific files to check")
 
 
 def cwd_relative(path):
@@ -197,9 +195,7 @@ def rewrite_and_print_output(
     """rewrite ouput with <file>:<line>: format to respect path args"""
     # print results relative to current working directory
     def translate(match):
-        return replacement.format(
-            cwd_relative(match.group(1)), *list(match.groups()[1:])
-        )
+        return replacement.format(cwd_relative(match.group(1)), *list(match.groups()[1:]))
 
     for line in output.split("\n"):
         if not line:
@@ -324,9 +320,7 @@ def style(parser, args):
     if file_list:
 
         def prefix_relative(path):
-            return os.path.relpath(
-                os.path.abspath(os.path.realpath(path)), spack.paths.prefix
-            )
+            return os.path.relpath(os.path.abspath(os.path.realpath(path)), spack.paths.prefix)
 
         file_list = [prefix_relative(p) for p in file_list]
 

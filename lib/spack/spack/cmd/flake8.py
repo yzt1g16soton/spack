@@ -19,7 +19,5 @@ def setup_parser(subparser):
 
 
 def flake8(parser, args):
-    tty.warn(
-        "spack flake8 is deprecated", "please use `spack style` to run style checks"
-    )
+    tty.warn("spack flake8 is deprecated", "please use `spack style` to run style checks")
     return spack.cmd.style.style(parser, args)

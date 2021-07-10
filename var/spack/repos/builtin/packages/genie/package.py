@@ -65,17 +65,24 @@ class Genie(Package):  # Genie doesn"t use Autotools
     patch("genie_disable_gopt_with_compiler_check.patch", level=0, when="@2.11:")
 
     # Flags for GENIE"s optional but disabled by default features
-    variant("atmo", default=False,
-            description="Enable GENIE Atmospheric neutrino event generation app")
-    variant("fnal", default=False,
-            description="Enables FNAL experiment-specific event generation app")
-    variant("nucleondecay", default=False,
-            description="Enable GENIE Nucleon decay event generation app")
-    variant("masterclass", default=False,
-            description="Enable GENIE neutrino masterclass app")
+    variant(
+        "atmo", default=False, description="Enable GENIE Atmospheric neutrino event generation app"
+    )
+    variant(
+        "fnal", default=False, description="Enables FNAL experiment-specific event generation app"
+    )
+    variant(
+        "nucleondecay",
+        default=False,
+        description="Enable GENIE Nucleon decay event generation app",
+    )
+    variant("masterclass", default=False, description="Enable GENIE neutrino masterclass app")
     variant("t2k", default=False, description="Enable T2K-specific generation app")
-    variant("vleextension", default=False,
-            description="Enable GENIE very low energy (1 MeV - 100 MeV) extension")
+    variant(
+        "vleextension",
+        default=False,
+        description="Enable GENIE very low energy (1 MeV - 100 MeV) extension",
+    )
 
     phases = ["configure", "build", "install"]
 
@@ -116,9 +123,7 @@ class Genie(Package):  # Genie doesn"t use Autotools
         args = [
             "--prefix=" + prefix,
             "--with-compiler=" + os.environ["CC"],
-            "--with-libxml2-inc={0}{1}libxml2".format(
-                spec["libxml2"].prefix.include, os.sep
-            ),
+            "--with-libxml2-inc={0}{1}libxml2".format(spec["libxml2"].prefix.include, os.sep),
             "--with-libxml2-lib=" + spec["libxml2"].prefix.lib,
             "--with-log4cpp-inc=" + spec["log4cpp"].prefix.include,
             "--with-log4cpp-lib=" + spec["log4cpp"].prefix.lib,

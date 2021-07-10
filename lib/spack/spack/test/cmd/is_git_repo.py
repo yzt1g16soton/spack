@@ -14,7 +14,7 @@ from spack.util.executable import which
 from spack.version import ver
 
 git = which("git")
-git_required_version = '2.17.0'
+git_required_version = "2.17.0"
 
 
 def check_git_version():
@@ -32,8 +32,7 @@ def check_git_version():
 
 
 pytestmark = pytest.mark.skipif(
-    not git or not check_git_version(),
-    reason="we need git to test if we are in a git repo"
+    not git or not check_git_version(), reason="we need git to test if we are in a git repo"
 )
 
 

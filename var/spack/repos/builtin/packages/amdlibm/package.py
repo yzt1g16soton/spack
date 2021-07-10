@@ -28,8 +28,7 @@ class Amdlibm(SConsPackage):
     version("3.0", branch="aocl-3.0")
     version("2.2", commit="4033e022da428125747e118ccd6fdd9cee21c470")
 
-    variant("verbose", default=False,
-            description="Building with verbosity")
+    variant("verbose", default=False, description="Building with verbosity")
 
     # Mandatory dependencies
     depends_on("python@3.6.1:", type=("build", "run"))
@@ -42,7 +41,7 @@ class Amdlibm(SConsPackage):
     conflicts("%gcc@:9.1.999", msg="Minimum required GCC version is 9.2.0")
 
     def build_args(self, spec, prefix):
-        """Setting build arguments for amdlibm """
+        """Setting build arguments for amdlibm"""
         args = ["--prefix={0}".format(prefix)]
 
         if "%aocc" in spec:
@@ -63,9 +62,9 @@ class Amdlibm(SConsPackage):
 
     install_args = build_args
 
-    @run_after('install')
+    @run_after("install")
     def create_symlink(self):
         """Symbolic link for backward compatibility"""
         with working_dir(self.prefix.lib):
-            os.symlink('libalm.a', 'libamdlibm.a')
-            os.symlink('libalm.so', 'libamdlibm.so')
+            os.symlink("libalm.a", "libamdlibm.a")
+            os.symlink("libalm.so", "libamdlibm.so")

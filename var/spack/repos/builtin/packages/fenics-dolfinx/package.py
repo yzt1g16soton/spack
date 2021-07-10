@@ -42,20 +42,17 @@ class FenicsDolfinx(CMakePackage):
     depends_on("py-fenics-basix", type=("build", "run"), when="@main")
     depends_on("py-fenics-basix@0.1.0", type=("build", "run"), when="@0.1.0")
 
-    conflicts('%gcc@:8', msg='Improved C++17 support required')
+    conflicts("%gcc@:8", msg="Improved C++17 support required")
 
     root_cmakelists_dir = "cpp"
 
     def cmake_args(self):
         args = [
             "-DDOLFINX_SKIP_BUILD_TESTS=True",
-            "-DDOLFINX_ENABLE_KAHIP=%s" % (
-                'ON' if "+kahip" in self.spec else 'OFF'),
-            "-DDOLFINX_ENABLE_PARMETIS=%s" % (
-                'ON' if "+parmetis" in self.spec else 'OFF'),
-            "-DDOLFINX_ENABLE_SLEPC=%s" % (
-                'ON' if "+slepc" in self.spec else 'OFF'),
-            "-DPython3_ROOT_DIR=%s" % self.spec['python'].home,
+            "-DDOLFINX_ENABLE_KAHIP=%s" % ("ON" if "+kahip" in self.spec else "OFF"),
+            "-DDOLFINX_ENABLE_PARMETIS=%s" % ("ON" if "+parmetis" in self.spec else "OFF"),
+            "-DDOLFINX_ENABLE_SLEPC=%s" % ("ON" if "+slepc" in self.spec else "OFF"),
+            "-DPython3_ROOT_DIR=%s" % self.spec["python"].home,
             "-DPython3_FIND_STRATEGY=LOCATION",
         ]
         return args

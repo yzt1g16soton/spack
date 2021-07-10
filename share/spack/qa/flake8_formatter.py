@@ -58,10 +58,7 @@ pattern_exemptions = {
 pattern_exemptions = dict(
     (
         re.compile(file_pattern),
-        dict(
-            (code, [re.compile(p) for p in patterns])
-            for code, patterns in error_dict.items()
-        ),
+        dict((code, [re.compile(p) for p in patterns]) for code, patterns in error_dict.items()),
     )
     for file_pattern, error_dict in pattern_exemptions.items()
 )
@@ -105,9 +102,7 @@ class SpackFormatter(Pylint):
         # get list of patterns for this error code
         pats = self.spack_errors.get(error.code, None)
         # if any pattern matches, skip line
-        if pats is not None and any(
-            (pat.search(error.physical_line) for pat in pats)
-        ):
+        if pats is not None and any((pat.search(error.physical_line) for pat in pats)):
             return
 
         # Special F811 handling
@@ -117,16 +112,10 @@ class SpackFormatter(Pylint):
         # https://gitlab.com/pycqa/flake8/issues/583
         # we can only determine if F811 should be ignored given the previous
         # line, so get the previous line and check it
-        if (
-            self.spack_errors.get("F811", False)
-            and error.code == "F811"
-            and error.line_number > 1
-        ):
+        if self.spack_errors.get("F811", False) and error.code == "F811" and error.line_number > 1:
             if self.file_lines is None:
                 if self.filename in {"stdin", "-", "(none)", None}:
-                    self.file_lines = pycodestyle.stdin_get_value().splitlines(
-                        True
-                    )
+                    self.file_lines = pycodestyle.stdin_get_value().splitlines(True)
                 else:
                     self.file_lines = pycodestyle.readlines(self.filename)
             for pat in self.spack_errors["F811"]:

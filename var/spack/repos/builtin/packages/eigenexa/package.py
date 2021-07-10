@@ -12,9 +12,7 @@ class Eigenexa(AutotoolsPackage):
     homepage = "https://www.r-ccs.riken.jp/labs/lpnctrt/projects/eigenexa/"
     url = "https://www.r-ccs.riken.jp/labs/lpnctrt/projects/eigenexa/EigenExa-2.6.tgz"
 
-    version(
-        "2.6", sha256="a1a4e571a8051443f28e7ea4889272993452a4babd036d2b4dd6b28154302f95"
-    )
+    version("2.6", sha256="a1a4e571a8051443f28e7ea4889272993452a4babd036d2b4dd6b28154302f95")
 
     depends_on("autoconf", type="build")
     depends_on("automake", type="build")
@@ -44,13 +42,12 @@ class Eigenexa(AutotoolsPackage):
             "LAPACK_PATH",
             "{0}".format(
                 ":".join(
-                    self.spec["lapack"].libs.directories
-                    + self.spec["scalapack"].libs.directories
+                    self.spec["lapack"].libs.directories + self.spec["scalapack"].libs.directories
                 )
             ),
         )
 
-    @run_after('install')
+    @run_after("install")
     def cache_test_sources(self):
         self.cache_extra_test_sources("benchmark")
 
@@ -58,12 +55,8 @@ class Eigenexa(AutotoolsPackage):
         test_dir = self.test_suite.current_test_data_dir
         exe_name = join_path(test_dir, "run-test.sh")
         mpi_name = self.spec["mpi"].prefix.bin.mpirun
-        test_file = join_path(
-            self.install_test_root, "benchmark", "eigenexa_benchmark"
-        )
+        test_file = join_path(self.install_test_root, "benchmark", "eigenexa_benchmark")
         input_file = join_path(self.install_test_root, "benchmark", "IN")
-        opts = [exe_name, mpi_name, '-n', '1', test_file, '-f', input_file]
+        opts = [exe_name, mpi_name, "-n", "1", test_file, "-f", input_file]
         env["OMP_NUM_THREADS"] = "1"
-        self.run_test(
-            "sh", options=opts, expected="EigenExa Test Passed !", work_dir=test_dir
-        )
+        self.run_test("sh", options=opts, expected="EigenExa Test Passed !", work_dir=test_dir)

@@ -17,13 +17,13 @@ class PyNeurokit2(PythonPackage):
     """
 
     homepage = "https://github.com/neuropsychology/NeuroKit"
-    pypi     = "neurokit2/neurokit2-0.1.2.tar.gz"
+    pypi = "neurokit2/neurokit2-0.1.2.tar.gz"
 
-    version('0.1.2', sha256='5ef40037c2d7078ecb713ab0b77b850267babf133856b59595de9613f29787bc')
+    version("0.1.2", sha256="5ef40037c2d7078ecb713ab0b77b850267babf133856b59595de9613f29787bc")
 
-    depends_on('py-setuptools@040.6.0:', type='build')
-    depends_on('py-numpy', type=('build', 'run'))
-    depends_on('py-pandas', type=('build', 'run'))
-    depends_on('py-scipy', type=('build', 'run'))
-    depends_on('py-scikit-learn', type=('build', 'run'))
-    depends_on('py-matplotlib', type=('build', 'run'))
+    depends_on("py-setuptools@040.6.0:", type="build")
+    depends_on("py-numpy", type=("build", "run"))
+    depends_on("py-pandas", type=("build", "run"))
+    depends_on("py-scipy", type=("build", "run"))
+    depends_on("py-scikit-learn", type=("build", "run"))
+    depends_on("py-matplotlib", type=("build", "run"))
