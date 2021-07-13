@@ -440,7 +440,8 @@ class AutotoolsPackage(PackageBase):
 
         # Create a list of pairs. Each pair includes a configuration
         # option and whether or not that option is activated
-        if set(self.variants[name].values) == set((True, False)):
+        variant_desc = self.variants[name][0]
+        if set(variant_desc.values) == set((True, False)):
             # BoolValuedVariant carry information about a single option.
             # Nonetheless, for uniformity of treatment we'll package them
             # in an iterable of one element.
@@ -453,8 +454,8 @@ class AutotoolsPackage(PackageBase):
             # package's build system. It excludes values which have special
             # meanings and do not correspond to features (e.g. "none")
             feature_values = getattr(
-                self.variants[name].values, 'feature_values', None
-            ) or self.variants[name].values
+                variant_desc.values, 'feature_values', None
+            ) or variant_desc.values
 
             options = [
                 (value, condition.format(name=name, value=value) in spec)
